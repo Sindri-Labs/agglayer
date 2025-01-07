@@ -68,6 +68,52 @@ impl Runner {
         vk
     }
 
+    // Make API request to Sindri create proof endpoint
+    pub async fn get_sindri_proof(input: SP1Stdin, api_key: &str) -> anyhow::Result<String, anyhow::Error> {
+        // Set the header
+        let mut heads_json = HeaderMap::new();
+        headers_json.insert("Accept", "application/json".parse().unwrap());
+        headers_json.insert(
+            "Authorization",
+            HeaderValue::from_str(&format!("Bearer {api_key}").to_string()).unwrap(),
+        );
+
+        // Serialize the SP1Stdin input to JSON
+        let proof_input = serde_json::to_string(&input).unwrap();
+        let mut map = json!({"proof_input": proof_input});
+        let response = reqwest::Client::new()
+            .post(format!("{0}circuit/{identifier}/create_proof", "https://stage.sindri.app/"))
+            .headers(headers_json.clone())
+            .json(&map)
+            .send()
+            .await
+            .expect("Failed to send request");
+        
+            let response_body = response.json::<Value>().await.unwrap();
+
+            let proof_id = response_body["proof_id"].as_str().unwrap();
+
+        // Poll the API until the proof is ready and then return the proof
+        for i in 0..600 {
+            let response = reqwest::Client::new()
+                .get(format!("{0}proof/{proof_id}/detail", "https://stage.sindri.app/"))
+                .headers(headers_json)
+                .send()
+                .await
+                .expect("Failed to send request");
+            assert_eq!(&response.status().as_u16(), &200u16, "Expected status code 201");
+
+            let data = response.json::<Value>().await.unwrap();
+            let status = &data["status"].to_string();
+            if ["Ready", "Failed"].iter().any(|&s| status.as_str().contains(s)) {
+                return Ok(data);
+                tokio::time::sleep(Duration::from_secs(1)).await;
+            }
+        }
+        anyhow::bail!("Proof generation timed out");
+    }
+
+
     /// Generate one plonk proof.
     pub fn generate_plonk_proof(
         &self,
@@ -79,11 +125,15 @@ impl Runner {
         PessimisticProofOutput,
     )> {
         let stdin = Self::prepare_stdin(state, batch_header);
-        let (pk, vk) = self.client.setup(PESSIMISTIC_PROOF_ELF);
+        //let (pk, vk) = self.client.setup(PESSIMISTIC_PROOF_ELF);
 
-        let proof = self.client.prove(&pk, stdin).plonk().run()?;
-        let output = Self::extract_output(proof.public_values.clone());
+        let api_key = "your_api_key_here";
+        // Make the call to Sindri here
+        let proof_data = self.get_sindri_proof(stdin, api_key).await;
 
+        let proof: SP1ProofWithPublicValues = serde_json::from_str(&proof_data["proof"]).unwrap();
+        let output: PessimisticProofOutput = serde_json::from_str(&proof_data["output"]).unwrap();
+        let vk: SP1VerifyingKey = serde_json::from_str(&proof_data["vk"]).unwrap();
         Ok((proof, vk, output))
     }
 }
