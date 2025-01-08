@@ -3,10 +3,12 @@ pub use pessimistic_proof::{LocalNetworkState, PessimisticProofOutput};
 use sp1_sdk::SP1PublicValues;
 pub use sp1_sdk::{ExecutionReport, SP1Proof};
 use sp1_sdk::{SP1ProofWithPublicValues, SP1Stdin, SP1VerifyingKey};
+use sp1_sdk::block_on;
 
 use dotenvy::dotenv;
 use envy;
 use sindri::SindriBuilder;
+use std::io::Write;
 
 use crate::PESSIMISTIC_PROOF_ELF;
 
@@ -74,48 +76,47 @@ impl Runner {
 
     pub fn save_input_to_json(input: SP1Stdin, path: &str) -> anyhow::Result<()> {
         let input_json = serde_json::to_string(&input).unwrap();
-        let mut file = File::create(path)?;
+        let mut file = std::fs::File::create(path)?;
         file.write_all(input_json.as_bytes())?;
         Ok(())
     }
 
-    pub async fn get_sindri_proof_async(input: SP1Stdin) -> Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
-        save_input_to_json(input, "input.json")?;
+    // Generate the proof and obtain the verifying key from Sindri
+    // This function is async because it makes a network call to Sindri.
+    pub async fn get_sindri_proof_async(input: SP1Stdin) -> anyhow::Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
+        // Convert the input to JSON file.
+        let _ = Self::save_input_to_json(input, "input.json");
         
         // Initialize the Sindri client
-        dotenv().expect("Failed to read .env file");
-        let api_key: String = std::env::var("SINDRI_API_KEY").unwrap();
+        dotenv()?;
+        let api_key: String = std::env::var("SINDRI_API_KEY")?;
         // Alternatively, set the API key as an env var
-        let api_key: String = envy::from_env::<String>().unwrap();
+        let api_key: String = envy::from_env::<String>()?;
         let sindri_client = SindriBuilder::new(&api_key)
-            .endpoint("https://stage.sindri.app/") // eliminate this line for demo. Default is prod.
+            // .endpoint("https://stage.sindri.app/") // eliminate this line for demo. Default is prod.
             .build()
             .await;
 
         // Generate the proof on Sindri
-        let circuit_id = "pessimistic_proof_identifier";
+        let circuit_id = "f13b2401-ab6e-43e8-a784-112296d78cb3"; // should make public identifier on prod.
         let proof_id = sindri_client
             .prove_circuit(&circuit_id, "input.json")
-            .await
-            .expect("Failed to create proof");
+            .await?;
 
-        let proof = sindri_client
+        let proof_data = sindri_client
             .get_proof_details(&proof_id)
-            .await
-            .expect("Failed to get proof");
+            .await?;
 
-        let proof: SP1ProofWithPublicValues = serde_json::from_str(&proof_data["proof"]).unwrap();
-        // let output: PessimisticProofOutput = serde_json::from_str(&proof_data["public"]).unwrap(); // Need to supply output!
-        let vk: SP1VerifyingKey = serde_json::from_str(&proof_data["vk"]).unwrap();
-        let public_values = proof.public_values;
-        let output = public_values.read::<PessimisticProofOutput>().unwrap();
+        let proof: SP1ProofWithPublicValues = serde_json::from_value(proof_data["proof"].clone())?;
+        let vk: SP1VerifyingKey = serde_json::from_value(proof_data["vk"].clone())?;
+        let output = Self::extract_output(proof.public_values.clone());
 
-        OK((proof, vk, output))
+        Ok((proof, vk, output))
     }
 
-    // 
+    // This method is a wrapper around the async method above.
     pub fn get_sindri_proof(input: SP1Stdin) -> anyhow::Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
-        let (proof, vk, output) = sp1_sdk::utils::block_on(get_sindri_proof_async(input));
+        let (proof, vk, output) = block_on(Self::get_sindri_proof_async(input))?;
         Ok((proof, vk, output))
     }
 
@@ -133,7 +134,7 @@ impl Runner {
         let stdin = Self::prepare_stdin(state, batch_header);
 
         // Make the call to Sindri here
-        let proof_data = Self::get_sindri_proof(stdin, api_key); 
+        let proof_data = Self::get_sindri_proof(stdin)?; 
 
         Ok(proof_data)
     }
