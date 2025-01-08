@@ -84,9 +84,10 @@ impl Runner {
 
     // Generate the proof and obtain the verifying key from Sindri
     // This function is async because it makes a network call to Sindri.
-    pub async fn get_sindri_proof_async(path: &str) -> anyhow::Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
+    pub async fn get_sindri_proof_async(input: SP1Stdin) -> anyhow::Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
         // Convert the input to JSON file.
-        // let _ = Self::save_input_to_json(input, "input.json");
+        let input_path = "input.json";
+        let _ = Self::save_input_to_json(input, input_path);
         
         // Initialize the Sindri client
         dotenv()?;
@@ -98,7 +99,7 @@ impl Runner {
         // Generate the proof on Sindri
         let circuit_id = "f13b2401-ab6e-43e8-a784-112296d78cb3"; // Should make a public circuit identifier on prod.
         let proof_id = sindri_client
-            .prove_circuit(&circuit_id, path)
+            .prove_circuit(&circuit_id, input_path)
             .await?;
 
         // let proof_id = "5f9e8929-515f-4e8d-b473-e55345538ced"; // Hardcoding for debugging purposes
@@ -121,24 +122,25 @@ impl Runner {
     }
 
     // This method is a wrapper around the async method above.
-    pub fn get_sindri_proof(path: &str) -> anyhow::Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
-        let (proof, vk, output) = block_on(Self::get_sindri_proof_async(path))?;
+    pub fn get_sindri_proof(input: SP1Stdin) -> anyhow::Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
+        let (proof, vk, output) = block_on(Self::get_sindri_proof_async(input))?;
         Ok((proof, vk, output))
     }
 
     /// Generate one plonk proof.
     pub fn generate_plonk_proof(
         &self,
-        path: &str,
+        state: &LocalNetworkState,
+        batch_header: &MultiBatchHeader,
     ) -> anyhow::Result<(
         SP1ProofWithPublicValues,
         SP1VerifyingKey,
         PessimisticProofOutput,
     )> {
-        // let stdin = Self::prepare_stdin(state, batch_header);
+        let stdin = Self::prepare_stdin(state, batch_header);
 
         // Make the call to Sindri here
-        let proof_data = Self::get_sindri_proof(path)?; 
+        let proof_data = Self::get_sindri_proof(stdin)?; 
 
         Ok(proof_data)
     }
