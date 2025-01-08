@@ -15,10 +15,13 @@ path = "src/bin/convertor.rs"
 agglayer-primitives.workspace = true
 agglayer-types = { path = "../agglayer-types", features = ["testutils"] }
 pessimistic-proof = { path = "../pessimistic-proof" }
+sindri = {git = "https://github.com/Sindri-Labs/sindri-rs.git"}
+envy = "0.4.2"
 
 base64.workspace = true
 bincode.workspace = true
 clap.workspace = true
+dotenvy.workspace = true
 ethers-signers.workspace = true
 serde.workspace = true
 serde_json.workspace = true

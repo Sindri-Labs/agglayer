@@ -4,6 +4,10 @@ use sp1_sdk::SP1PublicValues;
 pub use sp1_sdk::{ExecutionReport, SP1Proof};
 use sp1_sdk::{SP1ProofWithPublicValues, SP1Stdin, SP1VerifyingKey};
 
+use dotenvy::dotenv;
+use envy;
+use sindri::SindriBuilder;
+
 use crate::PESSIMISTIC_PROOF_ELF;
 
 pub type Hasher = pessimistic_proof::local_exit_tree::hasher::Keccak256Hasher;
@@ -68,51 +72,52 @@ impl Runner {
         vk
     }
 
-    // Make API request to Sindri create proof endpoint
-    pub async fn get_sindri_proof(input: SP1Stdin, api_key: &str) -> anyhow::Result<String, anyhow::Error> {
-        // Set the header
-        let mut heads_json = HeaderMap::new();
-        headers_json.insert("Accept", "application/json".parse().unwrap());
-        headers_json.insert(
-            "Authorization",
-            HeaderValue::from_str(&format!("Bearer {api_key}").to_string()).unwrap(),
-        );
-
-        // Serialize the SP1Stdin input to JSON
-        let proof_input = serde_json::to_string(&input).unwrap();
-        let mut map = json!({"proof_input": proof_input});
-        let response = reqwest::Client::new()
-            .post(format!("{0}circuit/{identifier}/create_proof", "https://stage.sindri.app/"))
-            .headers(headers_json.clone())
-            .json(&map)
-            .send()
-            .await
-            .expect("Failed to send request");
-        
-            let response_body = response.json::<Value>().await.unwrap();
-
-            let proof_id = response_body["proof_id"].as_str().unwrap();
-
-        // Poll the API until the proof is ready and then return the proof
-        for i in 0..600 {
-            let response = reqwest::Client::new()
-                .get(format!("{0}proof/{proof_id}/detail", "https://stage.sindri.app/"))
-                .headers(headers_json)
-                .send()
-                .await
-                .expect("Failed to send request");
-            assert_eq!(&response.status().as_u16(), &200u16, "Expected status code 201");
-
-            let data = response.json::<Value>().await.unwrap();
-            let status = &data["status"].to_string();
-            if ["Ready", "Failed"].iter().any(|&s| status.as_str().contains(s)) {
-                return Ok(data);
-                tokio::time::sleep(Duration::from_secs(1)).await;
-            }
-        }
-        anyhow::bail!("Proof generation timed out");
+    pub fn save_input_to_json(input: SP1Stdin, path: &str) -> anyhow::Result<()> {
+        let input_json = serde_json::to_string(&input).unwrap();
+        let mut file = File::create(path)?;
+        file.write_all(input_json.as_bytes())?;
+        Ok(())
     }
 
+    pub async fn get_sindri_proof_async(input: SP1Stdin) -> Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
+        save_input_to_json(input, "input.json")?;
+        
+        // Initialize the Sindri client
+        dotenv().expect("Failed to read .env file");
+        let api_key: String = std::env::var("SINDRI_API_KEY").unwrap();
+        // Alternatively, set the API key as an env var
+        let api_key: String = envy::from_env::<String>().unwrap();
+        let sindri_client = SindriBuilder::new(&api_key)
+            .endpoint("https://stage.sindri.app/") // eliminate this line for demo. Default is prod.
+            .build()
+            .await;
+
+        // Generate the proof on Sindri
+        let circuit_id = "pessimistic_proof_identifier";
+        let proof_id = sindri_client
+            .prove_circuit(&circuit_id, "input.json")
+            .await
+            .expect("Failed to create proof");
+
+        let proof = sindri_client
+            .get_proof_details(&proof_id)
+            .await
+            .expect("Failed to get proof");
+
+        let proof: SP1ProofWithPublicValues = serde_json::from_str(&proof_data["proof"]).unwrap();
+        // let output: PessimisticProofOutput = serde_json::from_str(&proof_data["public"]).unwrap(); // Need to supply output!
+        let vk: SP1VerifyingKey = serde_json::from_str(&proof_data["vk"]).unwrap();
+        let public_values = proof.public_values;
+        let output = public_values.read::<PessimisticProofOutput>().unwrap();
+
+        OK((proof, vk, output))
+    }
+
+    // 
+    pub fn get_sindri_proof(input: SP1Stdin) -> anyhow::Result<(SP1ProofWithPublicValues, SP1VerifyingKey, PessimisticProofOutput)> {
+        let (proof, vk, output) = sp1_sdk::utils::block_on(get_sindri_proof_async(input));
+        Ok((proof, vk, output))
+    }
 
     /// Generate one plonk proof.
     pub fn generate_plonk_proof(
@@ -124,16 +129,12 @@ impl Runner {
         SP1VerifyingKey,
         PessimisticProofOutput,
     )> {
+        // Save the input as JSON file
         let stdin = Self::prepare_stdin(state, batch_header);
-        //let (pk, vk) = self.client.setup(PESSIMISTIC_PROOF_ELF);
 
-        let api_key = "your_api_key_here";
         // Make the call to Sindri here
-        let proof_data = self.get_sindri_proof(stdin, api_key).await;
+        let proof_data = Self::get_sindri_proof(stdin, api_key); 
 
-        let proof: SP1ProofWithPublicValues = serde_json::from_str(&proof_data["proof"]).unwrap();
-        let output: PessimisticProofOutput = serde_json::from_str(&proof_data["output"]).unwrap();
-        let vk: SP1VerifyingKey = serde_json::from_str(&proof_data["vk"]).unwrap();
-        Ok((proof, vk, output))
+        Ok(proof_data)
     }
 }
