@@ -118,6 +118,9 @@ fn test_sp1_simple() {
     stdin.write(&initial_state);
     stdin.write(&multi_batch_header);
 
+    let file = std::fs::File::create("input.json").unwrap();
+    serde_json::to_writer(file, &stdin).unwrap();
+
     // Generate the proof for the given program and input.
     let client = ProverClient::new();
     let (pk, vk) = client.setup(PESSIMISTIC_PROOF_ELF);
