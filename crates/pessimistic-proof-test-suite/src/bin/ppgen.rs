@@ -57,37 +57,37 @@ fn get_events(n: usize, path: Option<PathBuf>) -> Vec<(TokenInfo, U256)> {
 pub fn main() {
     sp1_sdk::utils::setup_logger();
 
-    let args = PPGenArgs::parse();
+    // let args = PPGenArgs::parse();
 
-    let mut state = data::sample_state_00();
+    // let mut state = data::sample_state_00();
 
-    let old_state = state.state_b.clone();
+    // let old_state = state.state_b.clone();
 
-    let bridge_exits = get_events(args.n_exits, args.sample_path.clone());
-    let imported_bridge_exits = get_events(args.n_imported_exits, args.sample_path);
+    // let bridge_exits = get_events(args.n_exits, args.sample_path.clone());
+    // let imported_bridge_exits = get_events(args.n_imported_exits, args.sample_path);
 
-    let certificate = state.apply_events(&imported_bridge_exits, &bridge_exits);
+    // let certificate = state.apply_events(&imported_bridge_exits, &bridge_exits);
 
-    info!(
-        "Certificate {}: [{}]",
-        certificate.hash(),
-        serde_json::to_string(&certificate).unwrap()
-    );
+    // info!(
+    //     "Certificate {}: [{}]",
+    //     certificate.hash(),
+    //     serde_json::to_string(&certificate).unwrap()
+    // );
 
-    let l1_info_root = certificate.l1_info_root().unwrap().unwrap_or_default();
-    let multi_batch_header = old_state
-        .make_multi_batch_header(&certificate, state.get_signer(), l1_info_root)
-        .unwrap();
+    // let l1_info_root = certificate.l1_info_root().unwrap().unwrap_or_default();
+    // let multi_batch_header = old_state
+    //     .make_multi_batch_header(&certificate, state.get_signer(), l1_info_root)
+    //     .unwrap();
 
-    info!(
-        "Generating the proof for {} bridge exit(s) and {} imported bridge exit(s)",
-        bridge_exits.len(),
-        imported_bridge_exits.len()
-    );
+    // info!(
+    //     "Generating the proof for {} bridge exit(s) and {} imported bridge exit(s)",
+    //     bridge_exits.len(),
+    //     imported_bridge_exits.len()
+    // );
 
     let start = Instant::now();
     let (proof, vk, new_roots) = Runner::new()
-        .generate_plonk_proof(&old_state.into(), &multi_batch_header)
+        .generate_plonk_proof("input.json") // This should be the two proof inputs, but there's an error in the code.
         .expect("proving failed");
     let duration = start.elapsed();
     info!(
@@ -98,32 +98,32 @@ pub fn main() {
     let vkey = vk.bytes32().to_string();
     info!("vkey: {}", vkey);
 
-    let fixture = PessimisticProofFixture {
-        certificate,
-        pp_inputs: new_roots.into(),
-        signer: state.get_signer(),
-        vkey: vkey.clone(),
-        public_values: format!("0x{}", hex::encode(proof.public_values.as_slice())),
-        proof: format!("0x{}", hex::encode(proof.bytes())),
-    };
+    // let fixture = PessimisticProofFixture {
+    //     certificate,
+    //     pp_inputs: new_roots.into(),
+    //     signer: state.get_signer(),
+    //     vkey: vkey.clone(),
+    //     public_values: format!("0x{}", hex::encode(proof.public_values.as_slice())),
+    //     proof: format!("0x{}", hex::encode(proof.bytes())),
+    // };
 
-    if let Some(proof_dir) = args.proof_dir {
-        // Save the plonk proof to a json file.
-        let proof_path = proof_dir.join(format!(
-            "{}-exits-v{}-{}.json",
-            args.n_exits,
-            &vkey[..8],
-            Uuid::new_v4()
-        ));
-        if let Err(e) = std::fs::create_dir_all(&proof_dir) {
-            warn!("Failed to create directory: {e}");
-        }
-        info!("Writing the proof to {:?}", proof_path);
-        std::fs::write(proof_path, serde_json::to_string_pretty(&fixture).unwrap())
-            .expect("failed to write fixture");
-    } else {
-        info!("Proof: {:?}", fixture);
-    }
+    // if let Some(proof_dir) = args.proof_dir {
+    //     // Save the plonk proof to a json file.
+    //     let proof_path = proof_dir.join(format!(
+    //         "{}-exits-v{}-{}.json",
+    //         args.n_exits,
+    //         &vkey[..8],
+    //         Uuid::new_v4()
+    //     ));
+    //     if let Err(e) = std::fs::create_dir_all(&proof_dir) {
+    //         warn!("Failed to create directory: {e}");
+    //     }
+    //     info!("Writing the proof to {:?}", proof_path);
+    //     std::fs::write(proof_path, serde_json::to_string_pretty(&fixture).unwrap())
+    //         .expect("failed to write fixture");
+    // } else {
+    //     info!("Proof: {:?}", fixture);
+    // }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

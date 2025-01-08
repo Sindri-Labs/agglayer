@@ -17,6 +17,8 @@ agglayer-types = { path = "../agglayer-types", features = ["testutils"] }
 pessimistic-proof = { path = "../pessimistic-proof" }
 sindri = {git = "https://github.com/Sindri-Labs/sindri-rs.git"}
 envy = "0.4.2"
+tokio = { version = "1.0", features = ["full"] }
+rmp-serde = "1.3.0"
 
 base64.workspace = true
 bincode.workspace = true
