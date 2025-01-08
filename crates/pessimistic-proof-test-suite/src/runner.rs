@@ -97,11 +97,11 @@ impl Runner {
 
         // Generate the proof on Sindri
         let circuit_id = "f13b2401-ab6e-43e8-a784-112296d78cb3"; // Should make a public circuit identifier on prod.
-        // let proof_id = sindri_client
-        //     .prove_circuit(&circuit_id, path)
-        //     .await?;
+        let proof_id = sindri_client
+            .prove_circuit(&circuit_id, path)
+            .await?;
 
-        let proof_id = "5f9e8929-515f-4e8d-b473-e55345538ced"; // Hardcoding for debugging purposes
+        // let proof_id = "5f9e8929-515f-4e8d-b473-e55345538ced"; // Hardcoding for debugging purposes
         
         println!("Proof successfully completed on Sindri");
         let proof_data = sindri_client
@@ -115,16 +115,7 @@ impl Runner {
         let proof: SP1ProofWithPublicValues = rmp_serde::from_slice(&proof_bytes)?;
         let output = Self::extract_output(proof.public_values.clone());
 
-        println!("Output successfully extracted");
-
         let vk: SP1VerifyingKey = serde_json::from_value(proof_data["verification_key"].clone())?;
-
-        println!("Verifying key successfully deserialized");
-
-        let output = Self::extract_output(proof.public_values.clone());
-
-        println!("Output successfully extracted");
-
 
         Ok((proof, vk, output))
     }
@@ -144,7 +135,6 @@ impl Runner {
         SP1VerifyingKey,
         PessimisticProofOutput,
     )> {
-        // Save the input as JSON file
         // let stdin = Self::prepare_stdin(state, batch_header);
 
         // Make the call to Sindri here
