@@ -1,0 +1,140 @@
+{
+  "certificate": {
+    "network_id": 1,
+    "height": 0,
+    "prev_local_exit_root": "0xf99fbc86af88be1a031b1d3aa12352bbc35c660f84f127100d98c722980dd5d7",
+    "new_local_exit_root": "0x13b8c3437fbedf942531bfdfd5d68020299f4f3d5861243bf7a54dac7df14159",
+    "bridge_exits": [
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0x602afda65e556aeb35de132d149c78031db42e73",
+        "amount": "0x2880dc0e310148",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0x9b864e76bcd768c6bf9386268bcadac09c866d58",
+        "amount": "0x9184e72a000",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0xec3a0b4c82884ee2b4a7f9183ece3e0661768cda",
+        "amount": "0xaa87bee538000",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0x9f0a25c7e72603f62c9b2fb99352d33f8be7a65d",
+        "amount": "0x36d3fec99c6800",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0x49b3ab8a282072e39def4019575f7349e02614e9",
+        "amount": "0x354a6ba7a18000",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0xb90057579ae49acc00d7f3d539e95094da098a07",
+        "amount": "0xe35fa931a0000",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0x2dbb96e77717a3324c9fa81def749a8b92c7d71d",
+        "amount": "0x16345785d8a0000",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0xaf9ada427e69e76271b72a781c9cb7e8edd4a527",
+        "amount": "0x2386f26fc10000",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0x54513c86943f27f1c6a0d268a907c8e1e97afd62",
+        "amount": "0x6a94d74f430000",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      },
+      {
+        "leaf_type": "Transfer",
+        "token_info": {
+          "origin_network": 0,
+          "origin_token_address": "0x0000000000000000000000000000000000000000"
+        },
+        "dest_network": 0,
+        "dest_address": "0xf522bea9f32d77ddf7299d7232a935cac87600b7",
+        "amount": "0xe6ed27d6668000",
+        "metadata": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"
+      }
+    ],
+    "imported_bridge_exits": [],
+    "signature": {
+      "r": "0x9e22c959b339fa0203de83ccd2e0eabd4ad01c54ae803c0d50f8d7d810c888ee",
+      "s": "0x14167b28fd685da12332a42555a174a334c3e7a5ece403a34b94c682f658d208",
+      "odd_y_parity": true
+    },
+    "metadata": "0x0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "pp-inputs": {
+    "prev-local-exit-root": "0xf99fbc86af88be1a031b1d3aa12352bbc35c660f84f127100d98c722980dd5d7",
+    "prev-pessimistic-root": "0xaef2cd8e12fb82394ba5f273f45afae6a5cc253c2e13f0e41ee2a0031ee0b29c",
+    "l1-info-root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "origin-network": 1,
+    "consensus-hash": "0x9a00fd35b283dff69a184498899bc232e42ecc26d72864be6ad90fcc94aa8c3b",
+    "new-local-exit-root": "0x13b8c3437fbedf942531bfdfd5d68020299f4f3d5861243bf7a54dac7df14159",
+    "new-pessimistic-root": "0x2a48464350173ed083fb33bba0a613e8155b249bc2ba45ffc7d078a76d496213"
+  },
+  "signer": "0x2497b2c9c1dbb63258dfc8f63801e36e9181ae18",
+  "vkey": "0x00e360ff2c18d456d6ee96c17f4e746216b475b62174bd2e9e8775ed99368ca3",
+  "public-values": "0xf99fbc86af88be1a031b1d3aa12352bbc35c660f84f127100d98c722980dd5d7aef2cd8e12fb82394ba5f273f45afae6a5cc253c2e13f0e41ee2a0031ee0b29c0000000000000000000000000000000000000000000000000000000000000000000000019a00fd35b283dff69a184498899bc232e42ecc26d72864be6ad90fcc94aa8c3b13b8c3437fbedf942531bfdfd5d68020299f4f3d5861243bf7a54dac7df141592a48464350173ed083fb33bba0a613e8155b249bc2ba45ffc7d078a76d496213",
+  "proof": "0x54bdcae30df79bc40933a554147e6df186cc30fcb68d46e431b3c8acf7745b38701d036616fddc7aefbc3ec1cfd3c08cea4d4a49b356af79a767b838fd5e333a39d7b33509f6716e09c0a92332b325c5cb2f27e9b65fe11e23d20ad84b4f2fb596bbdba419d1f408b535887f79bc034d1c6d10309e311ec8ac81ad7c5ed7e3995a82ef98184b33a068eb6d2d48d92245dba5c8232de790c15589e62e3923bd9707b8dbd30b30e4edaf24175802d74a94a6540e7bd79ed3e9f9fe62071808849dab2347541cfb44a59e67e0ae3c0ba2bec0f1be1412017004634604e0cf1276d7eb033c3b01e19ae112566fe012eb3476fa1479af2ccd2cf9ebca9df6fd0a0b4d5b77ffa424c0be385308d8021e8275d5282f568930a799a84aa740cbaf7d874c9bd018931281abb1226ff6dd9906fd4776cd55cfad18c8702dca08341d40d0a2b9aeaac81862a9d7dce811c18b92c1ac1c04cea84d0af869600a5456078942e292add6570e5e6130472f3d89c61f3534dcdf31ff426564a9627f7fe511a1d3e317a024c20c256f4704c1d5b17035e57c190b7d6487095a6cbf6b47347b1d12b76d0b652314102cb8e2c5c2c71f56bac896898a400d3e7153252977a3c6e3609f4a8ac1d72351b15cb4cd00a373153c56096c1023f239d989abe31c32b2b660afb2d38c8f2afebd613846ac014b5cba9821354b4362ee15051fb459fc966cc74ec44316bb1f18c929f10db64c283c618c4a1bbf47b0d7e72794866266809c049339b0955b034e883c0d59ffff60d15eb8c2a3998d461e7caf6c81204e72ca42e2fc0da1050a353d220668bdc2ef4d3863370fcdc0c32435a589645e01715221483e656a9a1dbe2157a7d7414b655f86e33720b634ad351faf9bd2b319a0645c811beeacee2d123b6a22ac14def5a0192bb3b71ef83411944142205aac933b5d53cccab6eb2e81488ac1432b20899f3c224243927497fbde558dc9a5a6188126559ee5bb8505e195726f95b322d67cd0bca1dec327f3fcfc45f34bd4be656f6f3298af749f224c7298d9550ee8fbc3fe285780ce1fbcc99d9a6a11088b1a56854d993c544a1c4bb8b1e31b9a3e71f19083f0c8de06c55dfda6bc52acd571d422f47c1045e4038ef12162522d696fc7b3885d43384e2fa3f031915a76ef630df788469ec19421eba8d7e5c08275fc8a72fb42420c21a5a26d87aa72a640258829b0d21b568b"
+}

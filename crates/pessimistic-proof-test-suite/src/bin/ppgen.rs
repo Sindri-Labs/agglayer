@@ -56,57 +56,40 @@ fn get_events(n: usize, path: Option<PathBuf>) -> Vec<(TokenInfo, U256)> {
     }
 }
 
-fn u(x: u64) -> U256 {
-    x.try_into().unwrap()
-}
-
 pub fn main() {
     sp1_sdk::utils::setup_logger();
 
     let args = PPGenArgs::parse();
 
-    // let mut state = data::sample_state_00();
+    let mut state = data::sample_state_01();
 
-    // let old_state = state.state_b.clone();
+    let old_state = state.state_b.clone();
 
-    // let bridge_exits = get_events(args.n_exits, args.sample_path.clone());
-    // let imported_bridge_exits = get_events(args.n_imported_exits, args.sample_path);
+    let bridge_exits = get_events(args.n_exits, args.sample_path.clone());
+    let imported_bridge_exits = get_events(args.n_imported_exits, args.sample_path);
 
-    // let certificate = state.apply_events(&imported_bridge_exits, &bridge_exits);
+    let certificate = state.apply_events(&imported_bridge_exits, &bridge_exits);
 
-    // info!(
-    //     "Certificate {}: [{}]",
-    //     certificate.hash(),
-    //     serde_json::to_string(&certificate).unwrap()
-    // );
+    info!(
+        "Certificate {}: [{}]",
+        certificate.hash(),
+        serde_json::to_string(&certificate).unwrap()
+    );
 
-    // let l1_info_root = certificate.l1_info_root().unwrap().unwrap_or_default();
-    // let multi_batch_header = old_state
-    //     .make_multi_batch_header(&certificate, state.get_signer(), l1_info_root)
-    //     .unwrap();
-
-    // info!(
-    //     "Generating the proof for {} bridge exit(s) and {} imported bridge exit(s)",
-    //     bridge_exits.len(),
-    //     imported_bridge_exits.len()
-    // );
-
-    let mut forest = Forest::new(vec![(*USDC, u(100)), (*ETH, u(200))]);
-    let imported_bridge_events = vec![(*USDC, u(50)), (*ETH, u(100)), (*USDC, u(10))];
-    let bridge_events = vec![(*USDC, u(20)), (*ETH, u(50)), (*USDC, u(130))];
-
-    let initial_state = forest.state_b.clone();
-    let certificate = forest.apply_events(&imported_bridge_events, &bridge_events);
     let l1_info_root = certificate.l1_info_root().unwrap().unwrap_or_default();
-    let multi_batch_header = initial_state
-        .make_multi_batch_header(&certificate, forest.get_signer(), l1_info_root)
+    let multi_batch_header = old_state
+        .make_multi_batch_header(&certificate, state.get_signer(), l1_info_root)
         .unwrap();
 
-    let initial_state = LocalNetworkState::from(initial_state);
+    info!(
+        "Generating the proof for {} bridge exit(s) and {} imported bridge exit(s)",
+        bridge_exits.len(),
+        imported_bridge_exits.len()
+    );
 
     let start = Instant::now();
     let (proof, vk, new_roots) = Runner::new()
-        .generate_plonk_proof(&initial_state, &multi_batch_header)
+        .generate_plonk_proof(&old_state.into(), &multi_batch_header)
         .expect("proving failed");
     let duration = start.elapsed();
     info!(
